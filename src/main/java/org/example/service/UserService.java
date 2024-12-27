@@ -1,5 +1,7 @@
 package org.example.service;
 
+import org.aspectj.lang.annotation.Aspect;
+import org.example.annotation.MetricTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,7 @@ public class UserService {
             new User(3, "tom@example.com", "password", "Tom")
     ));
 
+    @MetricTime(value = "login")
     public User login(String email, String password) {
         for (User user : users) {
             if (user.getEmail().equalsIgnoreCase(email) && user.getPassword().equals(password)) {
@@ -33,6 +36,7 @@ public class UserService {
         return this.users.stream().filter(user -> user.getId() == id).findFirst().orElseThrow();
     }
 
+    @MetricTime("register")
     public User register(String email, String password, String name) {
         users.forEach((user) -> {
             if(user.getEmail().equalsIgnoreCase(email)) {

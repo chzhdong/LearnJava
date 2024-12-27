@@ -3,9 +3,6 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-        <bean id="userService" class="org.example.service.UserService">
-            <property name="mailService" ref="mailService" />
-        </bean>
-
+        <bean id="userService" class="org.example.service.UserService"/>
         <bean id="mailService" class="org.example.service.MailService"/>
 </beans>

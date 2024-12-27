@@ -2,6 +2,7 @@ package org.example;
 
 import jakarta.annotation.PreDestroy;
 import org.example.service.AppService;
+import org.example.service.MailService;
 import org.example.service.User;
 import org.example.service.UserService;
 import org.example.validator.Validators;
@@ -14,7 +15,8 @@ import org.springframework.context.annotation.*;
 import java.time.ZoneId;
 
 @Configuration
-@ComponentScan
+@ComponentScan(basePackages = "org.example")
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 @PropertySource("classpath:/app.properties")
 public class AppConfig {
 
@@ -30,16 +32,14 @@ public class AppConfig {
         return ZoneId.of("America/New_York");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        ZoneId zoneId = context.getBean(ZoneId.class);
-        System.out.println(zoneId);
-        AppService appService = context.getBean(AppService.class);
-        System.out.println(appService.getLogo());
-        UserService userService = (UserService) context.getBean("userService");
-        Validators validators = (Validators) context.getBean("validators");
-        validators.validate("bob@example.com", "gfsfgdsg", "gfdggsfdgds");
+        UserService userService = (UserService) context.getBean(UserService.class);
         User user = userService.login("bob@example.com", "password");
-        System.out.println(user.getName());
+        System.out.println(userService.getClass());
+
+        MailService mailService = (MailService) context.getBean(MailService.class);
+        mailService.getTime();
+        System.out.println(mailService.getClass());
     }
 }
