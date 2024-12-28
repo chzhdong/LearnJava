@@ -1,5 +1,7 @@
 package org.example;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import jakarta.annotation.PreDestroy;
 import org.example.service.AppService;
 import org.example.service.MailService;
@@ -11,14 +13,25 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.time.ZoneId;
 
 @Configuration
 @ComponentScan(basePackages = "org.example")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
-@PropertySource("classpath:/app.properties")
+@PropertySource("classpath:/jdbc.properties")
 public class AppConfig {
+
+    @Value("${jdbc.url}")
+    String jdbcUrl;
+
+    @Value("${jdbc.username}")
+    String jdbcUsername;
+
+    @Value("${jdbc.password}")
+    String jdbcPassword;
 
     @Bean
     @Profile("!test")
@@ -32,14 +45,25 @@ public class AppConfig {
         return ZoneId.of("America/New_York");
     }
 
+    @Bean
+    DataSource createDataSource() {
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl(jdbcUrl);
+        config.setUsername(jdbcUsername);
+        config.setPassword(jdbcPassword);
+        config.addDataSourceProperty("autoCommit", "true");
+        config.addDataSourceProperty("connectionTimeout", "5");
+        config.addDataSourceProperty("idleTimeout", "60");
+        return new HikariDataSource(config);
+    }
+
+    @Bean
+    JdbcTemplate createJdbcTemplate(@Autowired DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
     public static void main(String[] args) throws Exception {
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        UserService userService = (UserService) context.getBean(UserService.class);
-        User user = userService.login("bob@example.com", "password");
-        System.out.println(userService.getClass());
 
-        MailService mailService = (MailService) context.getBean(MailService.class);
-        mailService.getTime();
-        System.out.println(mailService.getClass());
     }
 }
