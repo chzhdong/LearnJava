@@ -19,8 +19,9 @@ import javax.sql.DataSource;
 import java.time.ZoneId;
 
 @Configuration
-@ComponentScan(basePackages = "org.example")
+@ComponentScan
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@PropertySource("classpath:/app.properties")
 @PropertySource("classpath:/jdbc.properties")
 public class AppConfig {
 
@@ -64,6 +65,9 @@ public class AppConfig {
 
     public static void main(String[] args) throws Exception {
         ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-
+        UserService userService = context.getBean(UserService.class);
+        userService.register("bob@example.com", "password", "bob");
+        User user = userService.getUserByName("bob");
+        System.out.println(user.getName());
     }
 }
